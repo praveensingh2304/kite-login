@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Kite login relay</title>
+<style>
+  :root { --bg: #101B27; --panel: #172636; --text: #E4EAF0; --muted: #8A9BAD; --ok: #38B28C; --bad: #E5677A; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+               font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 420px; margin: 0 auto; padding: 48px 20px; }
+  h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 .5rem; }
+  p { color: var(--muted); line-height: 1.5; margin: 0 0 1.5rem; }
+  a.btn { display: block; text-align: center; text-decoration: none; padding: 16px;
+          border-radius: 10px; font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
+  .primary { background: var(--ok); color: #0b1a14; }
+  .secondary { background: var(--panel); color: var(--text); }
+  .bad { color: var(--bad); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <section id="ok" hidden>
+    <h1>Logged in</h1>
+    <p>Opening Telegram. Tap <strong>Start</strong> there to start the tracker.</p>
+    <a class="btn primary" id="tme" href="#">Open Telegram</a>
+    <a class="btn secondary" id="tg" href="#">Open in the Telegram app</a>
+    <p>If neither opens Telegram, copy this page's address and send it to your bot.</p>
+  </section>
+  <section id="fail" hidden>
+    <h1 class="bad">Login didn't complete</h1>
+    <p>Go back to Telegram and tap the latest login link. Each link works only once and expires in a few minutes.</p>
+  </section>
+</main>
+<script>
+  // Nothing is stored or sent anywhere except to your own Telegram bot, by your tap.
+  var BOT = "TheDeskOrchestrator_bot";
+  var q = new URLSearchParams(window.location.search);
+  var token = q.get("request_token") || "";
+  var ok = q.get("status") === "success" && /^[A-Za-z0-9]{16,64}$/.test(token);
+  if (ok) {
+    var web = "https://t.me/" + BOT + "?start=" + token;
+    var app = "tg://resolve?domain=" + BOT + "&start=" + token;
+    document.getElementById("tme").href = web;
+    document.getElementById("tg").href = app;
+    document.getElementById("ok").hidden = false;
+    setTimeout(function () { window.location.replace(web); }, 300);
+  } else {
+    document.getElementById("fail").hidden = false;
+  }
+</script>
+</body>
+</html>
